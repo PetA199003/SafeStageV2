@@ -349,6 +349,138 @@ Die Nettofläche schliesst Bühne, Technik, Bars und andere nicht begehbare Bere
         version: 1,
         sortOrder: 1,
       },
+      // --- NEUE VORSCHRIFTEN FÜR ZÜRICH ---
+      {
+        cantonId: zhCanton.id,
+        categoryId: capacityCat.id,
+        title: 'Maximalbelegung und Raumkapazität',
+        summary: 'Detaillierte Vorschriften zur maximalen Personenbelegung pro Raumtyp, Sonderfälle und Pflichten des Veranstalters.',
+        content: `# Maximalbelegung und Raumkapazität
+
+## Grundsatz
+Die maximale Personenbelegung eines Raumes darf zu keinem Zeitpunkt überschritten werden. Der Veranstalter ist für die Einhaltung verantwortlich.
+
+## Maximalbelegung nach Raumtyp
+
+### Geschlossene Räume
+| Raumtyp | Max. Personen/m² | Fläche pro Person |
+|---|---|---|
+| Stehplatz (Konzert) | 2.0 | 0.5 m² (Stehplatz-Maximum) |
+| Stehplatz (normal) | 1.0 | 1.0 m² |
+| Bestuhlt ohne Tische | 0.8 | 1.25 m² |
+| Bestuhlt mit Tischen | 0.5 | 2.0 m² |
+| Bankett | 0.4 | 2.5 m² |
+| Schulungsbestuhlung | 0.33 | 3.0 m² |
+
+### Sonderflächen
+| Bereich | Fläche pro Person |
+|---|---|
+| Galerie / Empore | 1.5 m² (erhöhte Anforderung) |
+| Bühnenbereich | Nicht in Kapazität einberechnet |
+| Technikbereich | Nicht in Kapazität einberechnet |
+| Bar- / Thekenbereiche | 3.0 m² (inkl. Arbeitsfläche) |
+| Garderoben | Nicht in Kapazität einberechnet |
+
+## Berechnung der Nettofläche
+Die Nettofläche ergibt sich aus:
+- **Bruttofläche** abzüglich:
+  - Bühne und Backstage
+  - Technikbereiche (Regie, Lichttechnik)
+  - Bars, Theken, Verkaufsstände
+  - Garderoben und Lager
+  - Sanitäranlagen
+  - Fluchtwege und Gänge (mind. 1.2m breit)
+
+## Pflichten des Veranstalters
+1. **Zählsystem**: Ab 500 Personen ist ein Personenzählsystem Pflicht
+2. **Einlasskontrolle**: Geschultes Personal an allen Eingängen
+3. **Maximalbelegung aushängen**: Gut sichtbar am Eingang
+4. **Dokumentation**: Kapazitätsberechnung muss schriftlich vorliegen
+5. **Behördliche Genehmigung**: Ab 300 Personen ist eine Veranstaltungsbewilligung erforderlich
+
+## Überbelegung – Massnahmen
+Bei Erreichen der Maximalbelegung:
+- Sofortiger Einlassstopp
+- Information an Sicherheitsleitung
+- Bei Überschreitung um >10%: Evakuierung prüfen
+- Verstösse können mit Bussen bis CHF 10'000 geahndet werden
+
+## Sonderfälle
+- **Mehrstöckige Räume**: Jedes Stockwerk separat berechnen
+- **Verbundene Räume**: Gesamtkapazität durch engsten Verbindungsweg limitiert
+- **Temporäre Einbauten**: Reduzieren die Nettofläche entsprechend`,
+        legalReference: 'VKF BSV 2015, SIA 402, Kantonale Bauverordnung ZH §72-75',
+        isActive: true,
+        version: 1,
+        sortOrder: 2,
+      },
+      {
+        cantonId: zhCanton.id,
+        categoryId: emergencyExitsCat.id,
+        title: 'Ausgangsbreiten und Türmasse',
+        summary: 'Genaue Anforderungen an Türbreiten, Gesamtausgangsbreite, Türöffnungsrichtung und Panikbeschläge.',
+        content: `# Ausgangsbreiten und Türmasse
+
+## Grundsatz
+Alle Ausgänge aus Versammlungsräumen müssen so dimensioniert sein, dass eine sichere Evakuierung innerhalb der vorgegebenen Zeit möglich ist.
+
+## Mindestbreiten für Türen und Ausgänge
+
+### Nach Personenzahl
+| Personenzahl | Mindestbreite pro Ausgang | Mindestanzahl Ausgänge | Gesamtbreite |
+|---|---|---|---|
+| bis 50 | 0.9 m (1-flüglig) | 1 | 0.9 m |
+| 51 – 100 | 0.9 m | 2 | 1.8 m |
+| 101 – 200 | 1.2 m | 2 | 2.4 m |
+| 201 – 300 | 1.2 m | 2 | 2.4 m |
+| 301 – 500 | 1.2 m | 3 | 3.6 m |
+| 501 – 1000 | 1.2 m | 4 | 4.8 m |
+| über 1000 | 1.2 m | 5+ | Berechnung |
+
+### Berechnungsformel
+**Gesamtausgangsbreite** = Personenzahl / 100 × 0.6 m
+
+Beispiel: 800 Personen → 800 / 100 × 0.6 = **4.8 m** Gesamtbreite
+
+## Türöffnungsrichtung
+- **Ab 50 Personen**: Türen müssen in Fluchtrichtung öffnen
+- **Ausnahme**: Schiebetüren nur zulässig wenn sie sich bei Stromausfall automatisch öffnen
+- **Drehtüren**: An Fluchtwegen **verboten**
+- **Karusselltüren**: Nur mit daneben liegender Fluchttür zulässig
+
+## Panikbeschläge (nach EN 1125)
+- **Ab 100 Personen**: Panikstangen (Push-Bars) Pflicht
+- **Anforderungen**:
+  - Betätigung ohne Schlüssel oder Wissen
+  - Öffnung durch horizontalen Druck (max. 80 N)
+  - Breite der Panikstange: mind. 60% der Türbreite
+  - Farbe: Grün oder kontrastierend zum Türblatt
+- **Prüfung**: Jährliche Wartung und Funktionsprüfung dokumentieren
+
+## Lichte Durchgangshöhe
+- Mindesthöhe: **2.0 m** über gesamte Durchgangsbreite
+- Bei Neubauten empfohlen: 2.1 m
+
+## Schwellen und Stufen
+- **Keine Schwellen** an Notausgängen erlaubt (max. 3 mm)
+- **Keine Stufen** im Bereich von 1.5 m vor/nach der Tür
+- Rampen: max. 6% Gefälle bei Fluchtwegen
+
+## Kennzeichnung
+- Rettungszeichen nach ISO 7010 (E001, E002)
+- Beleuchtung: mind. 1 Lux auf Bodenniveau
+- Nachleuchtend: mind. 30 Minuten Nachleuchtdauer
+- Notbeleuchtung: Automatische Umschaltung bei Stromausfall (max. 15 Sek.)
+
+## Besondere Anforderungen
+- **Barrierefreiheit**: Mind. 1 Ausgang rollstuhlgängig (mind. 0.9 m breit, keine Stufen)
+- **Brandschutztüren**: EI30 oder EI60 je nach Brandabschnitt
+- **Feststellanlagen**: Nur mit Brandmelder-Auslösung erlaubt`,
+        legalReference: 'VKF Brandschutzrichtlinie 16-15, EN 1125, SIA 402, Kantonale Feuerpolizeiverordnung ZH',
+        isActive: true,
+        version: 1,
+        sortOrder: 2,
+      },
     ];
 
     for (const reg of sampleRegulations) {
