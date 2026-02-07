@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeStage Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; color: #1f2937; }
+
+    /* Header */
+    .header { background: #1a2332; color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 20px; font-weight: 700; }
+    .header span { font-size: 13px; opacity: 0.7; }
+
+    /* Container */
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+    /* Toolbar */
+    .toolbar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .toolbar select, .toolbar button { padding: 8px 14px; border-radius: 6px; font-size: 14px; border: 1px solid #d1d5db; background: white; cursor: pointer; }
+    .toolbar select:focus { outline: 2px solid #3b82f6; }
+
+    .btn-primary { background: #059669 !important; color: white !important; border: none !important; font-weight: 600; }
+    .btn-primary:hover { background: #047857 !important; }
+    .btn-danger { background: #dc2626 !important; color: white !important; border: none !important; font-size: 12px; padding: 4px 10px !important; }
+    .btn-danger:hover { background: #b91c1c !important; }
+    .btn-edit { background: #3b82f6 !important; color: white !important; border: none !important; font-size: 12px; padding: 4px 10px !important; }
+    .btn-edit:hover { background: #2563eb !important; }
+    .btn-secondary { background: #6b7280 !important; color: white !important; border: none !important; }
+
+    /* Table */
+    .table-wrap { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9fafb; text-align: left; padding: 10px 14px; font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: 600; border-bottom: 2px solid #e5e7eb; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+    tr:hover { background: #f9fafb; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-gray { background: #e5e7eb; color: #4b5563; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .actions { display: flex; gap: 6px; }
+    .empty-row td { text-align: center; color: #9ca3af; padding: 40px; font-size: 15px; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; overflow-y: auto; }
+    .modal-overlay.active { display: block; }
+    .modal { background: white; max-width: 900px; margin: 40px auto; border-radius: 12px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
+    .modal-header { padding: 16px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h2 { font-size: 18px; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280; }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 10px; }
+
+    /* Form */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: inherit;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+    .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 8px; color: white; font-size: 14px; font-weight: 500; z-index: 200; animation: fadeIn 0.3s; }
+    .toast-success { background: #059669; }
+    .toast-error { background: #dc2626; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Stats */
+    .stats { display: flex; gap: 16px; margin-bottom: 20px; }
+    .stat-card { background: white; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex: 1; }
+    .stat-card .number { font-size: 28px; font-weight: 800; color: #1a2332; }
+    .stat-card .label { font-size: 13px; color: #6b7280; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SafeStage Admin</h1>
+  <span>Vorschriften verwalten</span>
+</div>
+
+<div class="container">
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="number" id="stat-total">0</div>
+      <div class="label">Vorschriften gesamt</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="stat-active">0</div>
+      <div class="label">Aktiv</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="stat-cantons">0</div>
+      <div class="label">Kantone mit Daten</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <select id="filter-canton">
+      <option value="">Alle Kantone</option>
+    </select>
+    <select id="filter-category">
+      <option value="">Alle Kategorien</option>
+    </select>
+    <button onclick="loadRegulations()" class="btn-secondary">Filtern</button>
+    <div style="flex:1"></div>
+    <button onclick="openCreateForm()" class="btn-primary">+ Neue Vorschrift</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Kanton</th>
+          <th>Kategorie</th>
+          <th>Titel</th>
+          <th>Status</th>
+          <th>Version</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody id="regulation-table">
+        <tr class="empty-row"><td colspan="7">Lade Daten...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Neue Vorschrift</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Kanton *</label>
+          <select id="form-canton"></select>
+        </div>
+        <div class="form-group">
+          <label>Kategorie *</label>
+          <select id="form-category"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Titel *</label>
+        <input type="text" id="form-title" placeholder="z.B. Notausgänge und Fluchtwege" maxlength="300">
+      </div>
+
+      <div class="form-group">
+        <label>Zusammenfassung *</label>
+        <textarea id="form-summary" rows="3" placeholder="Kurze Beschreibung der Vorschrift..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Inhalt (Markdown) *</label>
+        <textarea id="content-editor"></textarea>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Rechtsgrundlage</label>
+          <input type="text" id="form-legal" placeholder="z.B. VKF BSV 2015, SIA 402">
+        </div>
+        <div class="form-group">
+          <label>Quell-URL</label>
+          <input type="url" id="form-url" placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Gültig ab</label>
+          <input type="date" id="form-date">
+        </div>
+        <div class="form-group">
+          <label>Sortierung</label>
+          <input type="number" id="form-sort" value="0" min="0">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="checkbox-group">
+          <input type="checkbox" id="form-active" checked>
+          <label for="form-active" style="margin-bottom:0">Aktiv (in der App sichtbar)</label>
+        </div>
+        <div class="form-group">
+          <label>Version</label>
+          <input type="number" id="form-version" value="1" min="1">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal()" class="btn-secondary">Abbrechen</button>
+      <button onclick="saveRegulation()" class="btn-primary" id="btn-save">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let cantons = [];
+let categories = [];
+let regulations = [];
+let editingId = null;
+let easyMDE = null;
+
+const API = '/v1/regulations';
+const ADMIN_API = '/admin/api';
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  try {
+    [cantons, categories] = await Promise.all([
+      fetch(ADMIN_API + '/cantons').then(r => r.json()),
+      fetch(ADMIN_API + '/categories').then(r => r.json()),
+    ]);
+    populateDropdowns();
+    await loadRegulations();
+  } catch (err) {
+    showToast('Fehler beim Laden: ' + err.message, 'error');
+  }
+}
+
+// ============================================================
+// DROPDOWNS
+// ============================================================
+function populateDropdowns() {
+  // Filter dropdowns
+  const filterCanton = document.getElementById('filter-canton');
+  const filterCategory = document.getElementById('filter-category');
+
+  cantons.forEach(c => {
+    filterCanton.innerHTML += '<option value="' + c.id + '">' + c.code + ' - ' + c.name + '</option>';
+  });
+  categories.forEach(c => {
+    filterCategory.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
+  });
+
+  // Form dropdowns
+  const formCanton = document.getElementById('form-canton');
+  const formCategory = document.getElementById('form-category');
+
+  formCanton.innerHTML = '<option value="">-- Kanton wählen --</option>';
+  categories.forEach(c => {
+    formCategory.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
+  });
+  cantons.forEach(c => {
+    formCanton.innerHTML += '<option value="' + c.id + '">' + c.code + ' - ' + c.name + '</option>';
+  });
+  formCategory.innerHTML = '<option value="">-- Kategorie wählen --</option>';
+  categories.forEach(c => {
+    formCategory.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
+  });
+}
+
+// ============================================================
+// LOAD & RENDER TABLE
+// ============================================================
+async function loadRegulations() {
+  try {
+    const cantonId = document.getElementById('filter-canton').value;
+    const categoryId = document.getElementById('filter-category').value;
+
+    const params = new URLSearchParams();
+    if (cantonId) params.set('cantonId', cantonId);
+    if (categoryId) params.set('categoryId', categoryId);
+
+    regulations = await fetch(ADMIN_API + '/regulations?' + params).then(r => r.json());
+    renderTable();
+    updateStats();
+  } catch (err) {
+    showToast('Fehler beim Laden: ' + err.message, 'error');
+  }
+}
+
+function renderTable() {
+  const tbody = document.getElementById('regulation-table');
+
+  if (regulations.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Keine Vorschriften gefunden. Erstelle eine neue!</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = regulations.map(reg => {
+    const statusBadge = reg.isActive
+      ? '<span class="badge badge-green">Aktiv</span>'
+      : '<span class="badge badge-gray">Inaktiv</span>';
+
+    return '<tr>' +
+      '<td>' + reg.id + '</td>' +
+      '<td><span class="badge badge-blue">' + (reg.canton ? reg.canton.code : '?') + '</span> ' + (reg.canton ? reg.canton.name : '') + '</td>' +
+      '<td>' + (reg.category ? reg.category.name : '?') + '</td>' +
+      '<td><strong>' + escapeHtml(reg.title) + '</strong><br><small style="color:#6b7280">' + escapeHtml(truncate(reg.summary, 80)) + '</small></td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td>' + reg.version + '</td>' +
+      '<td class="actions">' +
+        '<button class="btn-edit" onclick="openEditForm(' + reg.id + ')">Bearbeiten</button>' +
+        '<button class="btn-danger" onclick="deleteRegulation(' + reg.id + ')">Löschen</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = regulations.length;
+  document.getElementById('stat-active').textContent = regulations.filter(r => r.isActive).length;
+  const uniqueCantons = new Set(regulations.map(r => r.cantonId));
+  document.getElementById('stat-cantons').textContent = uniqueCantons.size;
+}
+
+// ============================================================
+// CREATE / EDIT FORM
+// ============================================================
+function openCreateForm() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Neue Vorschrift';
+  resetForm();
+  showModal();
+}
+
+async function openEditForm(id) {
+  try {
+    const reg = await fetch(API + '/' + id).then(r => r.json());
+    editingId = id;
+    document.getElementById('modal-title').textContent = 'Vorschrift bearbeiten';
+
+    document.getElementById('form-canton').value = reg.cantonId;
+    document.getElementById('form-category').value = reg.categoryId;
+    document.getElementById('form-title').value = reg.title;
+    document.getElementById('form-summary').value = reg.summary;
+    document.getElementById('form-legal').value = reg.legalReference || '';
+    document.getElementById('form-url').value = reg.sourceUrl || '';
+    document.getElementById('form-date').value = reg.effectiveDate ? reg.effectiveDate.split('T')[0] : '';
+    document.getElementById('form-active').checked = reg.isActive;
+    document.getElementById('form-version').value = reg.version;
+    document.getElementById('form-sort').value = reg.sortOrder;
+
+    showModal();
+    // Set markdown content after EasyMDE is initialized
+    setTimeout(() => {
+      if (easyMDE) easyMDE.value(reg.content || '');
+    }, 100);
+  } catch (err) {
+    showToast('Fehler beim Laden: ' + err.message, 'error');
+  }
+}
+
+function resetForm() {
+  document.getElementById('form-canton').value = '';
+  document.getElementById('form-category').value = '';
+  document.getElementById('form-title').value = '';
+  document.getElementById('form-summary').value = '';
+  document.getElementById('form-legal').value = '';
+  document.getElementById('form-url').value = '';
+  document.getElementById('form-date').value = '';
+  document.getElementById('form-active').checked = true;
+  document.getElementById('form-version').value = '1';
+  document.getElementById('form-sort').value = '0';
+  if (easyMDE) easyMDE.value('');
+}
+
+// ============================================================
+// SAVE
+// ============================================================
+async function saveRegulation() {
+  const cantonId = parseInt(document.getElementById('form-canton').value);
+  const categoryId = parseInt(document.getElementById('form-category').value);
+  const title = document.getElementById('form-title').value.trim();
+  const summary = document.getElementById('form-summary').value.trim();
+  const content = easyMDE ? easyMDE.value().trim() : '';
+  const legalReference = document.getElementById('form-legal').value.trim() || null;
+  const sourceUrl = document.getElementById('form-url').value.trim() || null;
+  const effectiveDate = document.getElementById('form-date').value || null;
+  const isActive = document.getElementById('form-active').checked;
+  const version = parseInt(document.getElementById('form-version').value) || 1;
+  const sortOrder = parseInt(document.getElementById('form-sort').value) || 0;
+
+  // Validation
+  if (!cantonId || !categoryId || !title || !summary || !content) {
+    showToast('Bitte alle Pflichtfelder (*) ausfüllen!', 'error');
+    return;
+  }
+
+  const data = { cantonId, categoryId, title, summary, content, legalReference, sourceUrl, effectiveDate, isActive, version, sortOrder };
+
+  try {
+    const url = editingId ? API + '/' + editingId : API;
+    const method = editingId ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast('Fehler: ' + (err.error || 'Unbekannter Fehler'), 'error');
+      return;
+    }
+
+    showToast(editingId ? 'Vorschrift aktualisiert!' : 'Vorschrift erstellt!', 'success');
+    closeModal();
+    await loadRegulations();
+  } catch (err) {
+    showToast('Netzwerkfehler: ' + err.message, 'error');
+  }
+}
+
+// ============================================================
+// DELETE
+// ============================================================
+async function deleteRegulation(id) {
+  const reg = regulations.find(r => r.id === id);
+  const name = reg ? reg.title : 'ID ' + id;
+
+  if (!confirm('Vorschrift "' + name + '" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.')) {
+    return;
+  }
+
+  try {
+    const res = await fetch(API + '/' + id, { method: 'DELETE' });
+    if (!res.ok) {
+      const err = await res.json();
+      showToast('Fehler: ' + (err.error || 'Unbekannter Fehler'), 'error');
+      return;
+    }
+    showToast('Vorschrift gelöscht.', 'success');
+    await loadRegulations();
+  } catch (err) {
+    showToast('Netzwerkfehler: ' + err.message, 'error');
+  }
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function showModal() {
+  document.getElementById('modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  // Init EasyMDE
+  setTimeout(() => {
+    if (easyMDE) {
+      easyMDE.toTextArea();
+      easyMDE = null;
+    }
+    easyMDE = new EasyMDE({
+      element: document.getElementById('content-editor'),
+      spellChecker: false,
+      autosave: { enabled: false },
+      toolbar: [
+        'bold', 'italic', 'heading', 'heading-smaller', '|',
+        'quote', 'unordered-list', 'ordered-list', '|',
+        'table', 'horizontal-rule', '|',
+        'preview', 'side-by-side', '|',
+        'guide'
+      ],
+      placeholder: 'Markdown-Inhalt hier eingeben...\n\n# Überschrift\n## Unterüberschrift\n\n- Aufzählung\n- Punkt 2\n\n| Spalte A | Spalte B |\n|----------|----------|\n| Wert 1   | Wert 2   |',
+      status: ['lines', 'words'],
+      minHeight: '300px',
+    });
+  }, 50);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  document.body.style.overflow = '';
+  if (easyMDE) {
+    easyMDE.toTextArea();
+    easyMDE = null;
+  }
+  editingId = null;
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
+}
+
+function truncate(text, max) {
+  if (!text) return '';
+  return text.length > max ? text.substring(0, max) + '...' : text;
+}
+
+function showToast(message, type) {
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// Close modal on overlay click
+document.getElementById('modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+// ============================================================
+// START
+// ============================================================
+init();
+</script>
+</body>
+</html>
