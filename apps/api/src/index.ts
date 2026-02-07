@@ -9,18 +9,7 @@ import adminRouter from './routes/admin.routes';
 const app = express();
 
 // Middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
-      fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
-      imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"],
-    },
-  },
-}));
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 
