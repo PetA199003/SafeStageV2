@@ -17,6 +17,14 @@
     /* Container */
     .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
+    /* Tabs */
+    .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; }
+    .tab { padding: 12px 24px; font-size: 15px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; color: #6b7280; transition: all 0.2s; }
+    .tab:hover { color: #1f2937; background: #f9fafb; }
+    .tab.active { color: #059669; border-bottom-color: #059669; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
     /* Toolbar */
     .toolbar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
     .toolbar select, .toolbar button { padding: 8px 14px; border-radius: 6px; font-size: 14px; border: 1px solid #d1d5db; background: white; cursor: pointer; }
@@ -83,130 +91,202 @@
 
 <div class="header">
   <h1>SafeStage Admin</h1>
-  <span>Vorschriften verwalten</span>
+  <span>Inhalte verwalten</span>
 </div>
 
 <div class="container">
-  <!-- Stats -->
-  <div class="stats">
-    <div class="stat-card">
-      <div class="number" id="stat-total">0</div>
-      <div class="label">Vorschriften gesamt</div>
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('regulations')">Vorschriften</div>
+    <div class="tab" onclick="switchTab('examples')">Beispiele</div>
+    <div class="tab" onclick="switchTab('contacts')">Kontakte</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB: VORSCHRIFTEN -->
+  <!-- ============================================================ -->
+  <div id="tab-regulations" class="tab-content active">
+    <div class="stats">
+      <div class="stat-card"><div class="number" id="stat-reg-total">0</div><div class="label">Vorschriften gesamt</div></div>
+      <div class="stat-card"><div class="number" id="stat-reg-active">0</div><div class="label">Aktiv</div></div>
+      <div class="stat-card"><div class="number" id="stat-reg-cantons">0</div><div class="label">Kantone mit Daten</div></div>
     </div>
-    <div class="stat-card">
-      <div class="number" id="stat-active">0</div>
-      <div class="label">Aktiv</div>
+    <div class="toolbar">
+      <select id="filter-reg-canton"><option value="">Alle Kantone</option></select>
+      <select id="filter-reg-category"><option value="">Alle Kategorien</option></select>
+      <button onclick="loadRegulations()" class="btn-secondary">Filtern</button>
+      <div style="flex:1"></div>
+      <button onclick="openRegulationForm()" class="btn-primary">+ Neue Vorschrift</button>
     </div>
-    <div class="stat-card">
-      <div class="number" id="stat-cantons">0</div>
-      <div class="label">Kantone mit Daten</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Kanton</th><th>Kategorie</th><th>Titel</th><th>Status</th><th>Aktionen</th></tr></thead>
+        <tbody id="reg-table"><tr class="empty-row"><td colspan="6">Lade Daten...</td></tr></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <select id="filter-canton">
-      <option value="">Alle Kantone</option>
-    </select>
-    <select id="filter-category">
-      <option value="">Alle Kategorien</option>
-    </select>
-    <button onclick="loadRegulations()" class="btn-secondary">Filtern</button>
-    <div style="flex:1"></div>
-    <button onclick="openCreateForm()" class="btn-primary">+ Neue Vorschrift</button>
+  <!-- ============================================================ -->
+  <!-- TAB: BEISPIELE -->
+  <!-- ============================================================ -->
+  <div id="tab-examples" class="tab-content">
+    <div class="stats">
+      <div class="stat-card"><div class="number" id="stat-ex-total">0</div><div class="label">Beispiele gesamt</div></div>
+      <div class="stat-card"><div class="number" id="stat-ex-active">0</div><div class="label">Aktiv</div></div>
+    </div>
+    <div class="toolbar">
+      <select id="filter-ex-canton"><option value="">Alle Kantone</option></select>
+      <select id="filter-ex-category"><option value="">Alle Kategorien</option></select>
+      <button onclick="loadExamples()" class="btn-secondary">Filtern</button>
+      <div style="flex:1"></div>
+      <button onclick="openExampleForm()" class="btn-primary">+ Neues Beispiel</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Kanton</th><th>Kategorie</th><th>Titel</th><th>Typ</th><th>Status</th><th>Aktionen</th></tr></thead>
+        <tbody id="ex-table"><tr class="empty-row"><td colspan="7">Lade Daten...</td></tr></tbody>
+      </table>
+    </div>
   </div>
 
-  <!-- Table -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Kanton</th>
-          <th>Kategorie</th>
-          <th>Titel</th>
-          <th>Status</th>
-          <th>Version</th>
-          <th>Aktionen</th>
-        </tr>
-      </thead>
-      <tbody id="regulation-table">
-        <tr class="empty-row"><td colspan="7">Lade Daten...</td></tr>
-      </tbody>
-    </table>
+  <!-- ============================================================ -->
+  <!-- TAB: KONTAKTE -->
+  <!-- ============================================================ -->
+  <div id="tab-contacts" class="tab-content">
+    <div class="stats">
+      <div class="stat-card"><div class="number" id="stat-ct-total">0</div><div class="label">Kontakte gesamt</div></div>
+      <div class="stat-card"><div class="number" id="stat-ct-active">0</div><div class="label">Aktiv</div></div>
+    </div>
+    <div class="toolbar">
+      <select id="filter-ct-canton"><option value="">Alle Kantone</option></select>
+      <select id="filter-ct-type"><option value="">Alle Typen</option></select>
+      <button onclick="loadContacts()" class="btn-secondary">Filtern</button>
+      <div style="flex:1"></div>
+      <button onclick="openContactForm()" class="btn-primary">+ Neuer Kontakt</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Kanton</th><th>Typ</th><th>Name</th><th>Organisation</th><th>Status</th><th>Aktionen</th></tr></thead>
+        <tbody id="ct-table"><tr class="empty-row"><td colspan="7">Lade Daten...</td></tr></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal-overlay" id="modal">
+<!-- ============================================================ -->
+<!-- MODAL: VORSCHRIFT -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="modal-reg">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="modal-title">Neue Vorschrift</h2>
-      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <h2 id="modal-reg-title">Neue Vorschrift</h2>
+      <button class="modal-close" onclick="closeModal('modal-reg')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group">
-          <label>Kanton *</label>
-          <select id="form-canton"></select>
-        </div>
-        <div class="form-group">
-          <label>Kategorie *</label>
-          <select id="form-category"></select>
-        </div>
+        <div class="form-group"><label>Kanton *</label><select id="form-reg-canton"></select></div>
+        <div class="form-group"><label>Kategorie *</label><select id="form-reg-category"></select></div>
       </div>
-
-      <div class="form-group">
-        <label>Titel *</label>
-        <input type="text" id="form-title" placeholder="z.B. Notausgänge und Fluchtwege" maxlength="300">
-      </div>
-
-      <div class="form-group">
-        <label>Zusammenfassung *</label>
-        <textarea id="form-summary" rows="3" placeholder="Kurze Beschreibung der Vorschrift..."></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Inhalt (Markdown) *</label>
-        <textarea id="content-editor"></textarea>
-      </div>
-
+      <div class="form-group"><label>Titel *</label><input type="text" id="form-reg-title" maxlength="300"></div>
+      <div class="form-group"><label>Zusammenfassung *</label><textarea id="form-reg-summary" rows="3"></textarea></div>
+      <div class="form-group"><label>Inhalt (Markdown) *</label><textarea id="reg-content-editor"></textarea></div>
       <div class="form-grid">
-        <div class="form-group">
-          <label>Rechtsgrundlage</label>
-          <input type="text" id="form-legal" placeholder="z.B. VKF BSV 2015, SIA 402">
-        </div>
-        <div class="form-group">
-          <label>Quell-URL</label>
-          <input type="url" id="form-url" placeholder="https://...">
-        </div>
+        <div class="form-group"><label>Rechtsgrundlage</label><input type="text" id="form-reg-legal"></div>
+        <div class="form-group"><label>Quell-URL</label><input type="url" id="form-reg-url"></div>
       </div>
-
       <div class="form-grid">
-        <div class="form-group">
-          <label>Gültig ab</label>
-          <input type="date" id="form-date">
-        </div>
-        <div class="form-group">
-          <label>Sortierung</label>
-          <input type="number" id="form-sort" value="0" min="0">
-        </div>
+        <div class="form-group"><label>Gültig ab</label><input type="date" id="form-reg-date"></div>
+        <div class="form-group"><label>Sortierung</label><input type="number" id="form-reg-sort" value="0" min="0"></div>
       </div>
-
       <div class="form-grid">
-        <div class="checkbox-group">
-          <input type="checkbox" id="form-active" checked>
-          <label for="form-active" style="margin-bottom:0">Aktiv (in der App sichtbar)</label>
-        </div>
-        <div class="form-group">
-          <label>Version</label>
-          <input type="number" id="form-version" value="1" min="1">
-        </div>
+        <div class="checkbox-group"><input type="checkbox" id="form-reg-active" checked><label for="form-reg-active" style="margin-bottom:0">Aktiv</label></div>
+        <div class="form-group"><label>Version</label><input type="number" id="form-reg-version" value="1" min="1"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button onclick="closeModal()" class="btn-secondary">Abbrechen</button>
-      <button onclick="saveRegulation()" class="btn-primary" id="btn-save">Speichern</button>
+      <button onclick="closeModal('modal-reg')" class="btn-secondary">Abbrechen</button>
+      <button onclick="saveRegulation()" class="btn-primary">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: BEISPIEL -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="modal-ex">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-ex-title">Neues Beispiel</h2>
+      <button class="modal-close" onclick="closeModal('modal-ex')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Kanton</label><select id="form-ex-canton"></select></div>
+        <div class="form-group"><label>Kategorie</label><select id="form-ex-category"></select></div>
+      </div>
+      <div class="form-group"><label>Titel *</label><input type="text" id="form-ex-title" maxlength="300"></div>
+      <div class="form-group"><label>Zusammenfassung *</label><textarea id="form-ex-summary" rows="3"></textarea></div>
+      <div class="form-group"><label>Inhalt (Markdown) *</label><textarea id="ex-content-editor"></textarea></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Veranstaltungstyp</label><input type="text" id="form-ex-eventtype" placeholder="z.B. Konzert, Messe"></div>
+        <div class="form-group"><label>Veranstaltungsort</label><input type="text" id="form-ex-venue"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Kapazität</label><input type="number" id="form-ex-capacity" min="0"></div>
+        <div class="form-group"><label>Sortierung</label><input type="number" id="form-ex-sort" value="0" min="0"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Rechtsgrundlage</label><input type="text" id="form-ex-legal"></div>
+        <div class="form-group"><label>Quell-URL</label><input type="url" id="form-ex-url"></div>
+      </div>
+      <div class="form-grid">
+        <div class="checkbox-group"><input type="checkbox" id="form-ex-active" checked><label for="form-ex-active" style="margin-bottom:0">Aktiv</label></div>
+        <div class="form-group"><label>Version</label><input type="number" id="form-ex-version" value="1" min="1"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('modal-ex')" class="btn-secondary">Abbrechen</button>
+      <button onclick="saveExample()" class="btn-primary">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: KONTAKT -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="modal-ct">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-ct-title">Neuer Kontakt</h2>
+      <button class="modal-close" onclick="closeModal('modal-ct')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Kanton</label><select id="form-ct-canton"></select></div>
+        <div class="form-group"><label>Kontakttyp</label><select id="form-ct-type"></select></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Name *</label><input type="text" id="form-ct-name"></div>
+        <div class="form-group"><label>Organisation</label><input type="text" id="form-ct-org"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Rolle / Funktion</label><input type="text" id="form-ct-role"></div>
+        <div class="form-group"><label>E-Mail</label><input type="email" id="form-ct-email"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Telefon</label><input type="tel" id="form-ct-phone"></div>
+        <div class="form-group"><label>Website</label><input type="url" id="form-ct-website"></div>
+      </div>
+      <div class="form-group"><label>Adresse</label><textarea id="form-ct-address" rows="2"></textarea></div>
+      <div class="form-group"><label>Beschreibung</label><textarea id="form-ct-description" rows="3"></textarea></div>
+      <div class="form-grid">
+        <div class="checkbox-group"><input type="checkbox" id="form-ct-active" checked><label for="form-ct-active" style="margin-bottom:0">Aktiv</label></div>
+        <div class="form-group"><label>Sortierung</label><input type="number" id="form-ct-sort" value="0" min="0"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('modal-ct')" class="btn-secondary">Abbrechen</button>
+      <button onclick="saveContact()" class="btn-primary">Speichern</button>
     </div>
   </div>
 </div>
@@ -217,24 +297,53 @@
 // STATE
 // ============================================================
 let cantons = [];
-let categories = [];
+let regCategories = [];
+let exCategories = [];
+let contactTypes = [];
 let regulations = [];
-let editingId = null;
-let easyMDE = null;
+let examples = [];
+let contacts = [];
+let editingRegId = null;
+let editingExId = null;
+let editingCtId = null;
+let regMDE = null;
+let exMDE = null;
+let currentTab = 'regulations';
 
-const API = '/v1/regulations';
+const API = '/v1';
 const ADMIN_API = '/admin/api';
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  if (tab === 'regulations' && regulations.length === 0) loadRegulations();
+  if (tab === 'examples' && examples.length === 0) loadExamples();
+  if (tab === 'contacts' && contacts.length === 0) loadContacts();
+}
 
 // ============================================================
 // INIT
 // ============================================================
 async function init() {
   try {
-    [cantons, categories] = await Promise.all([
+    const [c, rc, ec, ct] = await Promise.all([
       fetch(ADMIN_API + '/cantons').then(r => r.json()),
-      fetch(ADMIN_API + '/categories').then(r => r.json()),
+      fetch(ADMIN_API + '/regulation-categories').then(r => r.json()),
+      fetch(ADMIN_API + '/example-categories').then(r => r.json()),
+      fetch(ADMIN_API + '/contact-types').then(r => r.json()),
     ]);
-    populateDropdowns();
+    cantons = c;
+    regCategories = rc;
+    exCategories = ec;
+    contactTypes = ct;
+    populateAllDropdowns();
     await loadRegulations();
   } catch (err) {
     showToast('Fehler beim Laden: ' + err.message, 'error');
@@ -244,285 +353,430 @@ async function init() {
 // ============================================================
 // DROPDOWNS
 // ============================================================
-function populateDropdowns() {
+function populateAllDropdowns() {
   // Filter dropdowns
-  const filterCanton = document.getElementById('filter-canton');
-  const filterCategory = document.getElementById('filter-category');
-
-  cantons.forEach(c => {
-    filterCanton.innerHTML += '<option value="' + c.id + '">' + c.code + ' - ' + c.name + '</option>';
-  });
-  categories.forEach(c => {
-    filterCategory.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
-  });
+  fillSelect('filter-reg-canton', cantons, c => c.code + ' - ' + c.name);
+  fillSelect('filter-reg-category', regCategories, c => c.name);
+  fillSelect('filter-ex-canton', cantons, c => c.code + ' - ' + c.name);
+  fillSelect('filter-ex-category', exCategories, c => c.name);
+  fillSelect('filter-ct-canton', cantons, c => c.code + ' - ' + c.name);
+  fillSelect('filter-ct-type', contactTypes, c => c.name);
 
   // Form dropdowns
-  const formCanton = document.getElementById('form-canton');
-  const formCategory = document.getElementById('form-category');
+  fillSelect('form-reg-canton', cantons, c => c.code + ' - ' + c.name, '-- Kanton wählen --');
+  fillSelect('form-reg-category', regCategories, c => c.name, '-- Kategorie wählen --');
+  fillSelect('form-ex-canton', cantons, c => c.code + ' - ' + c.name, '-- Kanton (optional) --');
+  fillSelect('form-ex-category', exCategories, c => c.name, '-- Kategorie (optional) --');
+  fillSelect('form-ct-canton', cantons, c => c.code + ' - ' + c.name, '-- Kanton (optional) --');
+  fillSelect('form-ct-type', contactTypes, c => c.name, '-- Typ (optional) --');
+}
 
-  formCanton.innerHTML = '<option value="">-- Kanton wählen --</option>';
-  categories.forEach(c => {
-    formCategory.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
-  });
-  cantons.forEach(c => {
-    formCanton.innerHTML += '<option value="' + c.id + '">' + c.code + ' - ' + c.name + '</option>';
-  });
-  formCategory.innerHTML = '<option value="">-- Kategorie wählen --</option>';
-  categories.forEach(c => {
-    formCategory.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
+function fillSelect(id, items, labelFn, placeholder) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const existing = el.querySelector('option');
+  el.innerHTML = '';
+  if (placeholder) {
+    el.innerHTML = '<option value="">' + placeholder + '</option>';
+  } else {
+    el.innerHTML = '<option value="">' + (existing ? existing.textContent : 'Alle') + '</option>';
+  }
+  items.forEach(item => {
+    el.innerHTML += '<option value="' + item.id + '">' + labelFn(item) + '</option>';
   });
 }
 
 // ============================================================
-// LOAD & RENDER TABLE
+// REGULATIONS
 // ============================================================
 async function loadRegulations() {
   try {
-    const cantonId = document.getElementById('filter-canton').value;
-    const categoryId = document.getElementById('filter-category').value;
-
+    const cid = document.getElementById('filter-reg-canton').value;
+    const catid = document.getElementById('filter-reg-category').value;
     const params = new URLSearchParams();
-    if (cantonId) params.set('cantonId', cantonId);
-    if (categoryId) params.set('categoryId', categoryId);
-
+    if (cid) params.set('cantonId', cid);
+    if (catid) params.set('categoryId', catid);
     regulations = await fetch(ADMIN_API + '/regulations?' + params).then(r => r.json());
-    renderTable();
-    updateStats();
-  } catch (err) {
-    showToast('Fehler beim Laden: ' + err.message, 'error');
-  }
+    renderRegTable();
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
 }
 
-function renderTable() {
-  const tbody = document.getElementById('regulation-table');
+function renderRegTable() {
+  const tbody = document.getElementById('reg-table');
+  document.getElementById('stat-reg-total').textContent = regulations.length;
+  document.getElementById('stat-reg-active').textContent = regulations.filter(r => r.isActive).length;
+  document.getElementById('stat-reg-cantons').textContent = new Set(regulations.map(r => r.cantonId)).size;
 
-  if (regulations.length === 0) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Keine Vorschriften gefunden. Erstelle eine neue!</td></tr>';
-    return;
-  }
+  if (!regulations.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Keine Vorschriften gefunden.</td></tr>'; return; }
 
-  tbody.innerHTML = regulations.map(reg => {
-    const statusBadge = reg.isActive
-      ? '<span class="badge badge-green">Aktiv</span>'
-      : '<span class="badge badge-gray">Inaktiv</span>';
-
-    return '<tr>' +
-      '<td>' + reg.id + '</td>' +
-      '<td><span class="badge badge-blue">' + (reg.canton ? reg.canton.code : '?') + '</span> ' + (reg.canton ? reg.canton.name : '') + '</td>' +
-      '<td>' + (reg.category ? reg.category.name : '?') + '</td>' +
-      '<td><strong>' + escapeHtml(reg.title) + '</strong><br><small style="color:#6b7280">' + escapeHtml(truncate(reg.summary, 80)) + '</small></td>' +
-      '<td>' + statusBadge + '</td>' +
-      '<td>' + reg.version + '</td>' +
-      '<td class="actions">' +
-        '<button class="btn-edit" onclick="openEditForm(' + reg.id + ')">Bearbeiten</button>' +
-        '<button class="btn-danger" onclick="deleteRegulation(' + reg.id + ')">Löschen</button>' +
-      '</td>' +
-    '</tr>';
-  }).join('');
+  tbody.innerHTML = regulations.map(r => '<tr>' +
+    '<td>' + r.id + '</td>' +
+    '<td><span class="badge badge-blue">' + (r.canton ? r.canton.code : '-') + '</span></td>' +
+    '<td>' + (r.category ? r.category.name : '-') + '</td>' +
+    '<td><strong>' + esc(r.title) + '</strong><br><small style="color:#6b7280">' + esc(trunc(r.summary,80)) + '</small></td>' +
+    '<td>' + (r.isActive ? '<span class="badge badge-green">Aktiv</span>' : '<span class="badge badge-gray">Inaktiv</span>') + '</td>' +
+    '<td class="actions"><button class="btn-edit" onclick="editRegulation(' + r.id + ')">Bearbeiten</button><button class="btn-danger" onclick="deleteRegulation(' + r.id + ')">Löschen</button></td>' +
+  '</tr>').join('');
 }
 
-function updateStats() {
-  document.getElementById('stat-total').textContent = regulations.length;
-  document.getElementById('stat-active').textContent = regulations.filter(r => r.isActive).length;
-  const uniqueCantons = new Set(regulations.map(r => r.cantonId));
-  document.getElementById('stat-cantons').textContent = uniqueCantons.size;
+function openRegulationForm() {
+  editingRegId = null;
+  document.getElementById('modal-reg-title').textContent = 'Neue Vorschrift';
+  resetRegForm();
+  showModal('modal-reg');
+  initMDE('reg');
 }
 
-// ============================================================
-// CREATE / EDIT FORM
-// ============================================================
-function openCreateForm() {
-  editingId = null;
-  document.getElementById('modal-title').textContent = 'Neue Vorschrift';
-  resetForm();
-  showModal();
-}
-
-async function openEditForm(id) {
+async function editRegulation(id) {
   try {
-    const reg = await fetch(API + '/' + id).then(r => r.json());
-    editingId = id;
-    document.getElementById('modal-title').textContent = 'Vorschrift bearbeiten';
-
-    document.getElementById('form-canton').value = reg.cantonId;
-    document.getElementById('form-category').value = reg.categoryId;
-    document.getElementById('form-title').value = reg.title;
-    document.getElementById('form-summary').value = reg.summary;
-    document.getElementById('form-legal').value = reg.legalReference || '';
-    document.getElementById('form-url').value = reg.sourceUrl || '';
-    document.getElementById('form-date').value = reg.effectiveDate ? reg.effectiveDate.split('T')[0] : '';
-    document.getElementById('form-active').checked = reg.isActive;
-    document.getElementById('form-version').value = reg.version;
-    document.getElementById('form-sort').value = reg.sortOrder;
-
-    showModal();
-    // Set markdown content after EasyMDE is initialized
-    setTimeout(() => {
-      if (easyMDE) easyMDE.value(reg.content || '');
-    }, 100);
-  } catch (err) {
-    showToast('Fehler beim Laden: ' + err.message, 'error');
-  }
+    const r = await fetch(API + '/regulations/' + id).then(r => r.json());
+    editingRegId = id;
+    document.getElementById('modal-reg-title').textContent = 'Vorschrift bearbeiten';
+    document.getElementById('form-reg-canton').value = r.cantonId;
+    document.getElementById('form-reg-category').value = r.categoryId;
+    document.getElementById('form-reg-title').value = r.title;
+    document.getElementById('form-reg-summary').value = r.summary;
+    document.getElementById('form-reg-legal').value = r.legalReference || '';
+    document.getElementById('form-reg-url').value = r.sourceUrl || '';
+    document.getElementById('form-reg-date').value = r.effectiveDate ? r.effectiveDate.split('T')[0] : '';
+    document.getElementById('form-reg-active').checked = r.isActive;
+    document.getElementById('form-reg-version').value = r.version;
+    document.getElementById('form-reg-sort').value = r.sortOrder;
+    showModal('modal-reg');
+    initMDE('reg');
+    setTimeout(() => { if (regMDE) regMDE.value(r.content || ''); }, 150);
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
 }
 
-function resetForm() {
-  document.getElementById('form-canton').value = '';
-  document.getElementById('form-category').value = '';
-  document.getElementById('form-title').value = '';
-  document.getElementById('form-summary').value = '';
-  document.getElementById('form-legal').value = '';
-  document.getElementById('form-url').value = '';
-  document.getElementById('form-date').value = '';
-  document.getElementById('form-active').checked = true;
-  document.getElementById('form-version').value = '1';
-  document.getElementById('form-sort').value = '0';
-  if (easyMDE) easyMDE.value('');
+function resetRegForm() {
+  ['form-reg-canton','form-reg-category','form-reg-title','form-reg-summary','form-reg-legal','form-reg-url','form-reg-date'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('form-reg-active').checked = true;
+  document.getElementById('form-reg-version').value = '1';
+  document.getElementById('form-reg-sort').value = '0';
 }
 
-// ============================================================
-// SAVE
-// ============================================================
 async function saveRegulation() {
-  const cantonId = parseInt(document.getElementById('form-canton').value);
-  const categoryId = parseInt(document.getElementById('form-category').value);
-  const title = document.getElementById('form-title').value.trim();
-  const summary = document.getElementById('form-summary').value.trim();
-  const content = easyMDE ? easyMDE.value().trim() : '';
-  const legalReference = document.getElementById('form-legal').value.trim() || null;
-  const sourceUrl = document.getElementById('form-url').value.trim() || null;
-  const effectiveDate = document.getElementById('form-date').value || null;
-  const isActive = document.getElementById('form-active').checked;
-  const version = parseInt(document.getElementById('form-version').value) || 1;
-  const sortOrder = parseInt(document.getElementById('form-sort').value) || 0;
-
-  // Validation
-  if (!cantonId || !categoryId || !title || !summary || !content) {
-    showToast('Bitte alle Pflichtfelder (*) ausfüllen!', 'error');
-    return;
+  const data = {
+    cantonId: parseInt(document.getElementById('form-reg-canton').value),
+    categoryId: parseInt(document.getElementById('form-reg-category').value),
+    title: document.getElementById('form-reg-title').value.trim(),
+    summary: document.getElementById('form-reg-summary').value.trim(),
+    content: regMDE ? regMDE.value().trim() : '',
+    legalReference: document.getElementById('form-reg-legal').value.trim() || null,
+    sourceUrl: document.getElementById('form-reg-url').value.trim() || null,
+    effectiveDate: document.getElementById('form-reg-date').value || null,
+    isActive: document.getElementById('form-reg-active').checked,
+    version: parseInt(document.getElementById('form-reg-version').value) || 1,
+    sortOrder: parseInt(document.getElementById('form-reg-sort').value) || 0,
+  };
+  if (!data.cantonId || !data.categoryId || !data.title || !data.summary || !data.content) {
+    showToast('Bitte alle Pflichtfelder ausfüllen!', 'error'); return;
   }
-
-  const data = { cantonId, categoryId, title, summary, content, legalReference, sourceUrl, effectiveDate, isActive, version, sortOrder };
-
   try {
-    const url = editingId ? API + '/' + editingId : API;
-    const method = editingId ? 'PUT' : 'POST';
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      showToast('Fehler: ' + (err.error || 'Unbekannter Fehler'), 'error');
-      return;
-    }
-
-    showToast(editingId ? 'Vorschrift aktualisiert!' : 'Vorschrift erstellt!', 'success');
-    closeModal();
+    const url = editingRegId ? API + '/regulations/' + editingRegId : API + '/regulations';
+    const res = await fetch(url, { method: editingRegId ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    if (!res.ok) { const e = await res.json(); showToast('Fehler: ' + (e.error||'Unbekannt'), 'error'); return; }
+    showToast(editingRegId ? 'Vorschrift aktualisiert!' : 'Vorschrift erstellt!', 'success');
+    closeModal('modal-reg');
     await loadRegulations();
-  } catch (err) {
-    showToast('Netzwerkfehler: ' + err.message, 'error');
-  }
+  } catch (err) { showToast('Netzwerkfehler: ' + err.message, 'error'); }
 }
 
-// ============================================================
-// DELETE
-// ============================================================
 async function deleteRegulation(id) {
-  const reg = regulations.find(r => r.id === id);
-  const name = reg ? reg.title : 'ID ' + id;
-
-  if (!confirm('Vorschrift "' + name + '" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.')) {
-    return;
-  }
-
+  const r = regulations.find(x => x.id === id);
+  if (!confirm('Vorschrift "' + (r?r.title:id) + '" wirklich löschen?')) return;
   try {
-    const res = await fetch(API + '/' + id, { method: 'DELETE' });
-    if (!res.ok) {
-      const err = await res.json();
-      showToast('Fehler: ' + (err.error || 'Unbekannter Fehler'), 'error');
-      return;
-    }
+    const res = await fetch(API + '/regulations/' + id, { method: 'DELETE' });
+    if (!res.ok) { showToast('Fehler beim Löschen', 'error'); return; }
     showToast('Vorschrift gelöscht.', 'success');
     await loadRegulations();
-  } catch (err) {
-    showToast('Netzwerkfehler: ' + err.message, 'error');
-  }
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
 }
 
 // ============================================================
-// MODAL
+// EXAMPLES
 // ============================================================
-function showModal() {
-  document.getElementById('modal').classList.add('active');
-  document.body.style.overflow = 'hidden';
+async function loadExamples() {
+  try {
+    const cid = document.getElementById('filter-ex-canton').value;
+    const catid = document.getElementById('filter-ex-category').value;
+    const params = new URLSearchParams();
+    if (cid) params.set('cantonId', cid);
+    if (catid) params.set('categoryId', catid);
+    examples = await fetch(ADMIN_API + '/examples?' + params).then(r => r.json());
+    renderExTable();
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
+}
 
-  // Init EasyMDE
+function renderExTable() {
+  const tbody = document.getElementById('ex-table');
+  document.getElementById('stat-ex-total').textContent = examples.length;
+  document.getElementById('stat-ex-active').textContent = examples.filter(r => r.isActive).length;
+
+  if (!examples.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Keine Beispiele gefunden.</td></tr>'; return; }
+
+  tbody.innerHTML = examples.map(r => '<tr>' +
+    '<td>' + r.id + '</td>' +
+    '<td><span class="badge badge-blue">' + (r.canton ? r.canton.code : '-') + '</span></td>' +
+    '<td>' + (r.category ? r.category.name : '-') + '</td>' +
+    '<td><strong>' + esc(r.title) + '</strong></td>' +
+    '<td>' + (r.eventType || '-') + '</td>' +
+    '<td>' + (r.isActive ? '<span class="badge badge-green">Aktiv</span>' : '<span class="badge badge-gray">Inaktiv</span>') + '</td>' +
+    '<td class="actions"><button class="btn-edit" onclick="editExample(' + r.id + ')">Bearbeiten</button><button class="btn-danger" onclick="deleteExample(' + r.id + ')">Löschen</button></td>' +
+  '</tr>').join('');
+}
+
+function openExampleForm() {
+  editingExId = null;
+  document.getElementById('modal-ex-title').textContent = 'Neues Beispiel';
+  resetExForm();
+  showModal('modal-ex');
+  initMDE('ex');
+}
+
+async function editExample(id) {
+  try {
+    const r = await fetch(API + '/examples/' + id).then(r => r.json());
+    editingExId = id;
+    document.getElementById('modal-ex-title').textContent = 'Beispiel bearbeiten';
+    document.getElementById('form-ex-canton').value = r.cantonId || '';
+    document.getElementById('form-ex-category').value = r.categoryId || '';
+    document.getElementById('form-ex-title').value = r.title;
+    document.getElementById('form-ex-summary').value = r.summary;
+    document.getElementById('form-ex-eventtype').value = r.eventType || '';
+    document.getElementById('form-ex-venue').value = r.venue || '';
+    document.getElementById('form-ex-capacity').value = r.capacity || '';
+    document.getElementById('form-ex-legal').value = r.legalReference || '';
+    document.getElementById('form-ex-url').value = r.sourceUrl || '';
+    document.getElementById('form-ex-active').checked = r.isActive;
+    document.getElementById('form-ex-version').value = r.version;
+    document.getElementById('form-ex-sort').value = r.sortOrder;
+    showModal('modal-ex');
+    initMDE('ex');
+    setTimeout(() => { if (exMDE) exMDE.value(r.content || ''); }, 150);
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
+}
+
+function resetExForm() {
+  ['form-ex-canton','form-ex-category','form-ex-title','form-ex-summary','form-ex-eventtype','form-ex-venue','form-ex-capacity','form-ex-legal','form-ex-url'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('form-ex-active').checked = true;
+  document.getElementById('form-ex-version').value = '1';
+  document.getElementById('form-ex-sort').value = '0';
+}
+
+async function saveExample() {
+  const data = {
+    cantonId: parseInt(document.getElementById('form-ex-canton').value) || null,
+    categoryId: parseInt(document.getElementById('form-ex-category').value) || null,
+    title: document.getElementById('form-ex-title').value.trim(),
+    summary: document.getElementById('form-ex-summary').value.trim(),
+    content: exMDE ? exMDE.value().trim() : '',
+    eventType: document.getElementById('form-ex-eventtype').value.trim() || null,
+    venue: document.getElementById('form-ex-venue').value.trim() || null,
+    capacity: parseInt(document.getElementById('form-ex-capacity').value) || null,
+    legalReference: document.getElementById('form-ex-legal').value.trim() || null,
+    sourceUrl: document.getElementById('form-ex-url').value.trim() || null,
+    isActive: document.getElementById('form-ex-active').checked,
+    version: parseInt(document.getElementById('form-ex-version').value) || 1,
+    sortOrder: parseInt(document.getElementById('form-ex-sort').value) || 0,
+  };
+  if (!data.title || !data.summary || !data.content) {
+    showToast('Titel, Zusammenfassung und Inhalt sind erforderlich!', 'error'); return;
+  }
+  try {
+    const url = editingExId ? API + '/examples/' + editingExId : API + '/examples';
+    const res = await fetch(url, { method: editingExId ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    if (!res.ok) { const e = await res.json(); showToast('Fehler: ' + (e.error||'Unbekannt'), 'error'); return; }
+    showToast(editingExId ? 'Beispiel aktualisiert!' : 'Beispiel erstellt!', 'success');
+    closeModal('modal-ex');
+    await loadExamples();
+  } catch (err) { showToast('Netzwerkfehler: ' + err.message, 'error'); }
+}
+
+async function deleteExample(id) {
+  const r = examples.find(x => x.id === id);
+  if (!confirm('Beispiel "' + (r?r.title:id) + '" wirklich löschen?')) return;
+  try {
+    const res = await fetch(API + '/examples/' + id, { method: 'DELETE' });
+    if (!res.ok) { showToast('Fehler beim Löschen', 'error'); return; }
+    showToast('Beispiel gelöscht.', 'success');
+    await loadExamples();
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
+}
+
+// ============================================================
+// CONTACTS
+// ============================================================
+async function loadContacts() {
+  try {
+    const cid = document.getElementById('filter-ct-canton').value;
+    const tid = document.getElementById('filter-ct-type').value;
+    const params = new URLSearchParams();
+    if (cid) params.set('cantonId', cid);
+    if (tid) params.set('contactTypeId', tid);
+    contacts = await fetch(ADMIN_API + '/contacts?' + params).then(r => r.json());
+    renderCtTable();
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
+}
+
+function renderCtTable() {
+  const tbody = document.getElementById('ct-table');
+  document.getElementById('stat-ct-total').textContent = contacts.length;
+  document.getElementById('stat-ct-active').textContent = contacts.filter(r => r.isActive).length;
+
+  if (!contacts.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Keine Kontakte gefunden.</td></tr>'; return; }
+
+  tbody.innerHTML = contacts.map(r => '<tr>' +
+    '<td>' + r.id + '</td>' +
+    '<td><span class="badge badge-blue">' + (r.canton ? r.canton.code : 'Bund') + '</span></td>' +
+    '<td>' + (r.contactType ? r.contactType.name : '-') + '</td>' +
+    '<td><strong>' + esc(r.name) + '</strong></td>' +
+    '<td>' + esc(r.organization || '-') + '</td>' +
+    '<td>' + (r.isActive ? '<span class="badge badge-green">Aktiv</span>' : '<span class="badge badge-gray">Inaktiv</span>') + '</td>' +
+    '<td class="actions"><button class="btn-edit" onclick="editContact(' + r.id + ')">Bearbeiten</button><button class="btn-danger" onclick="deleteContact(' + r.id + ')">Löschen</button></td>' +
+  '</tr>').join('');
+}
+
+function openContactForm() {
+  editingCtId = null;
+  document.getElementById('modal-ct-title').textContent = 'Neuer Kontakt';
+  resetCtForm();
+  showModal('modal-ct');
+}
+
+async function editContact(id) {
+  try {
+    const r = contacts.find(x => x.id === id);
+    if (!r) return;
+    editingCtId = id;
+    document.getElementById('modal-ct-title').textContent = 'Kontakt bearbeiten';
+    document.getElementById('form-ct-canton').value = r.cantonId || '';
+    document.getElementById('form-ct-type').value = r.contactTypeId || '';
+    document.getElementById('form-ct-name').value = r.name;
+    document.getElementById('form-ct-org').value = r.organization || '';
+    document.getElementById('form-ct-role').value = r.role || '';
+    document.getElementById('form-ct-email').value = r.email || '';
+    document.getElementById('form-ct-phone').value = r.phone || '';
+    document.getElementById('form-ct-website').value = r.website || '';
+    document.getElementById('form-ct-address').value = r.address || '';
+    document.getElementById('form-ct-description').value = r.description || '';
+    document.getElementById('form-ct-active').checked = r.isActive;
+    document.getElementById('form-ct-sort').value = r.sortOrder;
+    showModal('modal-ct');
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
+}
+
+function resetCtForm() {
+  ['form-ct-canton','form-ct-type','form-ct-name','form-ct-org','form-ct-role','form-ct-email','form-ct-phone','form-ct-website','form-ct-address','form-ct-description'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('form-ct-active').checked = true;
+  document.getElementById('form-ct-sort').value = '0';
+}
+
+async function saveContact() {
+  const data = {
+    cantonId: parseInt(document.getElementById('form-ct-canton').value) || null,
+    contactTypeId: parseInt(document.getElementById('form-ct-type').value) || null,
+    name: document.getElementById('form-ct-name').value.trim(),
+    organization: document.getElementById('form-ct-org').value.trim() || null,
+    role: document.getElementById('form-ct-role').value.trim() || null,
+    email: document.getElementById('form-ct-email').value.trim() || null,
+    phone: document.getElementById('form-ct-phone').value.trim() || null,
+    website: document.getElementById('form-ct-website').value.trim() || null,
+    address: document.getElementById('form-ct-address').value.trim() || null,
+    description: document.getElementById('form-ct-description').value.trim() || null,
+    isActive: document.getElementById('form-ct-active').checked,
+    sortOrder: parseInt(document.getElementById('form-ct-sort').value) || 0,
+  };
+  if (!data.name) { showToast('Name ist erforderlich!', 'error'); return; }
+  try {
+    const url = editingCtId ? API + '/contacts/' + editingCtId : API + '/contacts';
+    const res = await fetch(url, { method: editingCtId ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    if (!res.ok) { const e = await res.json(); showToast('Fehler: ' + (e.error||'Unbekannt'), 'error'); return; }
+    showToast(editingCtId ? 'Kontakt aktualisiert!' : 'Kontakt erstellt!', 'success');
+    closeModal('modal-ct');
+    await loadContacts();
+  } catch (err) { showToast('Netzwerkfehler: ' + err.message, 'error'); }
+}
+
+async function deleteContact(id) {
+  const r = contacts.find(x => x.id === id);
+  if (!confirm('Kontakt "' + (r?r.name:id) + '" wirklich löschen?')) return;
+  try {
+    const res = await fetch(API + '/contacts/' + id, { method: 'DELETE' });
+    if (!res.ok) { showToast('Fehler beim Löschen', 'error'); return; }
+    showToast('Kontakt gelöscht.', 'success');
+    await loadContacts();
+  } catch (err) { showToast('Fehler: ' + err.message, 'error'); }
+}
+
+// ============================================================
+// MARKDOWN EDITOR
+// ============================================================
+function initMDE(type) {
+  const varName = type === 'reg' ? 'regMDE' : 'exMDE';
+  const elId = type + '-content-editor';
+
   setTimeout(() => {
-    if (easyMDE) {
-      easyMDE.toTextArea();
-      easyMDE = null;
-    }
-    easyMDE = new EasyMDE({
-      element: document.getElementById('content-editor'),
+    if (type === 'reg' && regMDE) { regMDE.toTextArea(); regMDE = null; }
+    if (type === 'ex' && exMDE) { exMDE.toTextArea(); exMDE = null; }
+
+    const mde = new EasyMDE({
+      element: document.getElementById(elId),
       spellChecker: false,
       autosave: { enabled: false },
-      toolbar: [
-        'bold', 'italic', 'heading', 'heading-smaller', '|',
-        'quote', 'unordered-list', 'ordered-list', '|',
-        'table', 'horizontal-rule', '|',
-        'preview', 'side-by-side', '|',
-        'guide'
-      ],
-      placeholder: 'Markdown-Inhalt hier eingeben...\n\n# Überschrift\n## Unterüberschrift\n\n- Aufzählung\n- Punkt 2\n\n| Spalte A | Spalte B |\n|----------|----------|\n| Wert 1   | Wert 2   |',
-      status: ['lines', 'words'],
-      minHeight: '300px',
+      toolbar: ['bold','italic','heading','heading-smaller','|','quote','unordered-list','ordered-list','|','table','horizontal-rule','|','preview','side-by-side','|','guide'],
+      placeholder: 'Markdown-Inhalt hier eingeben...',
+      status: ['lines','words'],
+      minHeight: '250px',
     });
+
+    if (type === 'reg') regMDE = mde;
+    else exMDE = mde;
   }, 50);
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.remove('active');
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function showModal(id) {
+  document.getElementById(id).classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
   document.body.style.overflow = '';
-  if (easyMDE) {
-    easyMDE.toTextArea();
-    easyMDE = null;
-  }
-  editingId = null;
+  if (regMDE && id === 'modal-reg') { regMDE.toTextArea(); regMDE = null; }
+  if (exMDE && id === 'modal-ex') { exMDE.toTextArea(); exMDE = null; }
+  editingRegId = null;
+  editingExId = null;
+  editingCtId = null;
 }
 
 // ============================================================
 // HELPERS
 // ============================================================
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text || '';
-  return div.innerHTML;
+function esc(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+function trunc(t, m) { return !t ? '' : t.length > m ? t.substring(0, m) + '...' : t; }
+
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
 }
 
-function truncate(text, max) {
-  if (!text) return '';
-  return text.length > max ? text.substring(0, max) + '...' : text;
-}
-
-function showToast(message, type) {
-  const toast = document.createElement('div');
-  toast.className = 'toast toast-' + type;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-// Close modal on Escape key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeModal();
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['modal-reg','modal-ex','modal-ct'].forEach(id => closeModal(id));
+  }
 });
 
-// Close modal on overlay click
-document.getElementById('modal').addEventListener('click', (e) => {
-  if (e.target === document.getElementById('modal')) closeModal();
+['modal-reg','modal-ex','modal-ct'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target === document.getElementById(id)) closeModal(id);
+  });
 });
 
 // ============================================================
