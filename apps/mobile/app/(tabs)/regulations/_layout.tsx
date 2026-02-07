@@ -12,6 +12,7 @@ export default function RegulationsLayout() {
     >
       <Stack.Screen name="index" options={{ headerTitle: 'Vorschriften' }} />
       <Stack.Screen name="[cantonCode]" options={{ headerTitle: 'Kanton' }} />
+      <Stack.Screen name="detail/[regulationId]" options={{ headerTitle: 'Vorschrift' }} />
     </Stack>
   );
 }

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tar:*)",
+      "Bash(ipconfig:*)",
+      "Bash(python3:*)"
+    ]
+  }
+}

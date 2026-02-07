@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '../../../services/api';
@@ -11,6 +11,7 @@ import { CANTONS } from '../../../constants/cantons';
 
 export default function CantonRegulationsScreen() {
   const { cantonCode } = useLocalSearchParams<{ cantonCode: string }>();
+  const router = useRouter();
   const canton = CANTONS.find((c) => c.code === cantonCode);
 
   const { data: categoriesData, isLoading: catLoading } = useQuery({
@@ -79,11 +80,20 @@ export default function CantonRegulationsScreen() {
                 </View>
 
                 {catRegs.map((reg: any) => (
-                  <TouchableOpacity key={reg.id} style={styles.regulationItem}>
-                    <Text style={styles.regulationTitle}>{reg.title}</Text>
-                    <Text style={styles.regulationSummary} numberOfLines={2}>
-                      {reg.summary}
-                    </Text>
+                  <TouchableOpacity
+                    key={reg.id}
+                    style={styles.regulationItem}
+                    onPress={() => router.push(`/(tabs)/regulations/detail/${reg.id}` as any)}
+                  >
+                    <View style={styles.regulationRow}>
+                      <View style={styles.regulationContent}>
+                        <Text style={styles.regulationTitle}>{reg.title}</Text>
+                        <Text style={styles.regulationSummary} numberOfLines={2}>
+                          {reg.summary}
+                        </Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+                    </View>
                   </TouchableOpacity>
                 ))}
               </Card>
@@ -166,6 +176,13 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
+  },
+  regulationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  regulationContent: {
+    flex: 1,
   },
   regulationTitle: {
     fontSize: FontSize.md,

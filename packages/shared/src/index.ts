@@ -7,3 +7,4 @@ export * from './types/contact';
 
 // Schemas
 export * from './schemas/calculationInput';
+export * from './schemas/regulationInput';

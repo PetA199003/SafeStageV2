@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/v1';
+const API_BASE_URL = 'http://192.168.1.99:3000/v1';
 
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
