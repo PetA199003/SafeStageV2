@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// KANTONE
+// ============================================================
+
+model Canton {
+  id           Int            @id @default(autoincrement())
+  code         String         @unique @db.VarChar(2)
+  name         String         @db.VarChar(100)
+  nameOfficial String         @map("name_official") @db.VarChar(100)
+  coatOfArms   String?        @map("coat_of_arms") @db.VarChar(255)
+  language     CantonLanguage @default(DE)
+  sortOrder    Int            @map("sort_order") @default(0)
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  regulations       Regulation[]
+  contacts          Contact[]
+  calculationParams CalculationParameter[]
+  examples          Example[]
+
+  @@map("cantons")
+}
+
+enum CantonLanguage {
+  DE
+  FR
+  IT
+  RM
+}
+
+// ============================================================
+// VORSCHRIFTEN
+// ============================================================
+
+model RegulationCategory {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @db.VarChar(100)
+  name        String   @db.VarChar(200)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(50)
+  sortOrder   Int      @map("sort_order") @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  regulations Regulation[]
+
+  @@map("regulation_categories")
+}
+
+model Regulation {
+  id             Int       @id @default(autoincrement())
+  cantonId       Int       @map("canton_id")
+  categoryId     Int       @map("category_id")
+  title          String    @db.VarChar(300)
+  summary        String    @db.Text
+  content        String    @db.LongText
+  legalReference String?   @map("legal_reference") @db.VarChar(300)
+  sourceUrl      String?   @map("source_url") @db.VarChar(500)
+  effectiveDate  DateTime? @map("effective_date")
+  isActive       Boolean   @default(true) @map("is_active")
+  version        Int       @default(1)
+  sortOrder      Int       @map("sort_order") @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  canton   Canton             @relation(fields: [cantonId], references: [id])
+  category RegulationCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([cantonId, categoryId])
+  @@index([isActive])
+  @@map("regulations")
+}
+
+// ============================================================
+// BERECHNUNGEN
+// ============================================================
+
+model CalculationType {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @db.VarChar(100)
+  name        String   @db.VarChar(200)
+  description String?  @db.Text
+  formula     String?  @db.Text
+  icon        String?  @db.VarChar(50)
+  sortOrder   Int      @map("sort_order") @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  parameters CalculationParameter[]
+
+  @@map("calculation_types")
+}
+
+model CalculationParameter {
+  id                Int       @id @default(autoincrement())
+  calculationTypeId Int       @map("calculation_type_id")
+  cantonId          Int?      @map("canton_id")
+  parameterKey      String    @map("parameter_key") @db.VarChar(100)
+  parameterValue    String    @map("parameter_value") @db.VarChar(100)
+  valueType         ValueType @map("value_type") @default(FLOAT)
+  unit              String?   @db.VarChar(50)
+  description       String?   @db.Text
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  calculationType CalculationType @relation(fields: [calculationTypeId], references: [id])
+  canton          Canton?         @relation(fields: [cantonId], references: [id])
+
+  @@unique([calculationTypeId, cantonId, parameterKey])
+  @@map("calculation_parameters")
+}
+
+enum ValueType {
+  INT
+  FLOAT
+  BOOLEAN
+  STRING
+}
+
+// ============================================================
+// BEISPIELE
+// ============================================================
+
+model ExampleCategory {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique @db.VarChar(100)
+  name      String   @db.VarChar(200)
+  icon      String?  @db.VarChar(50)
+  sortOrder Int      @map("sort_order") @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  examples Example[]
+
+  @@map("example_categories")
+}
+
+model Example {
+  id          Int      @id @default(autoincrement())
+  categoryId  Int      @map("category_id")
+  cantonId    Int?     @map("canton_id")
+  title       String   @db.VarChar(300)
+  description String   @db.Text
+  content     String   @db.LongText
+  eventType   String?  @map("event_type") @db.VarChar(100)
+  capacity    Int?
+  imageUrl    String?  @map("image_url") @db.VarChar(500)
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @map("sort_order") @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  category ExampleCategory @relation(fields: [categoryId], references: [id])
+  canton   Canton?         @relation(fields: [cantonId], references: [id])
+
+  @@index([categoryId])
+  @@index([cantonId])
+  @@map("examples")
+}
+
+// ============================================================
+// KONTAKTE
+// ============================================================
+
+model ContactType {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique @db.VarChar(100)
+  name      String   @db.VarChar(200)
+  sortOrder Int      @map("sort_order") @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  contacts Contact[]
+
+  @@map("contact_types")
+}
+
+model Contact {
+  id            Int      @id @default(autoincrement())
+  cantonId      Int?     @map("canton_id")
+  contactTypeId Int      @map("contact_type_id")
+  name          String   @db.VarChar(300)
+  department    String?  @db.VarChar(300)
+  street        String?  @db.VarChar(300)
+  postalCode    String?  @map("postal_code") @db.VarChar(10)
+  city          String?  @db.VarChar(100)
+  phone         String?  @db.VarChar(50)
+  email         String?  @db.VarChar(200)
+  website       String?  @db.VarChar(500)
+  description   String?  @db.Text
+  isActive      Boolean  @default(true) @map("is_active")
+  sortOrder     Int      @map("sort_order") @default(0)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  canton      Canton?     @relation(fields: [cantonId], references: [id])
+  contactType ContactType @relation(fields: [contactTypeId], references: [id])
+
+  @@index([cantonId, contactTypeId])
+  @@map("contacts")
+}
+
+// ============================================================
+// SYNC / VERSIONIERUNG
+// ============================================================
+
+model DataVersion {
+  id          Int      @id @default(autoincrement())
+  tableName   String   @unique @map("table_name") @db.VarChar(100)
+  version     Int      @default(1)
+  lastUpdated DateTime @map("last_updated") @updatedAt
+
+  @@map("data_versions")
+}
